@@ -14,23 +14,12 @@ user.
 //Defining a structure for process
 struct process
 {
-	int process_number;
-	int arrival_time;
-	int cpu_burst;
-	int completion_time;
-	int turn_around_time;
-	int waiting_time;
-
+	int process_number , arrival_time , cpu_burst , turn_around_time , waiting_time , completion_time ;
 };
 
-float avg_turn_around_time=0;
-float avg_waiting_time=0;
+float avg_turn_around_time=0 , avg_waiting_time=0;
 
-int completed_processes=0;
-int queued_processes=0;
-
-int number_of_processes=0,time_quantum=0;
-int total_time=0;
+int completed_processes=0 , queued_processes=0 , number_of_processes=0 , time_quantum=0 , total_time=0 , idle_time=0;
 
 int main()
 {
@@ -107,9 +96,7 @@ int main()
     {
     	total_time += available[i].cpu_burst;
     }
-    
-    if(total_time<(maxat+available[maxatp].cpu_burst))
-       total_time=maxat+available[maxatp].cpu_burst;
+    total_time += maxat;
 
     printf("\nTotal time of execution is : %d \n",total_time);
 
@@ -120,10 +107,8 @@ int main()
     	int j=0;
 
         //checking processes at time i and adding to queue
-        
     	for (j=0;j<number_of_processes; ++j)
     	{
-    		
     		if (available[j].arrival_time==i)
     		{
     			printf("\nAdding process %d to queue",j);
@@ -132,64 +117,87 @@ int main()
     		}
     	}
 
+        printf("\nThe number of queued processes :%d\n",queued_processes );
 
     	//If current process is completed then adding it to completed array
-    	if(queued_processes!=0){
-    	if(queue[0].cpu_burst==0)
+    	if (queued_processes != 0)
     	{
-    		int mainpro;
-    		printf("\nProcess %d is completed\n",queue[0].process_number);
-    		for (j = 0; j < number_of_processes; ++j)
-    		{
-    			if(queue[0].process_number==available[j].process_number)
-    				mainpro=j;
-    		}
-    		queue[0].completion_time=i;
-    		queue[0].turn_around_time=i-queue[0].arrival_time;
-    		queue[0].waiting_time=queue[0].turn_around_time - available[mainpro].cpu_burst;
-    		completed[completed_processes]=queue[0];
-    		queue[0].cpu_burst = available[mainpro].cpu_burst;
-    		++completed_processes;
-    		//Removing current process from queue
-    	    for (j=0 ; j < queued_processes; ++j)
+    		if(queue[0].cpu_burst==0)
     	    {
-    		    queue[j]=queue[j+1];
-    	    }
-    	    --queued_processes;
-
-    	}}
-    	if(queue[0].cpu_burst!=0)
-    	{
-
-    		if ((i%time_quantum)==0)
-    		{
-    			if(i!=0)
-    			{
-    				printf("\nTime quantum expired \n");
-    			    j=0;
-    			    struct process sample;
-    			    sample=queue[j];
-    	            for (j; j < queued_processes; ++j)
-    	            {
-    		            queue[j]=queue[j+1];
-    	            }
-    	            queue[j-1]=sample;
-    			}
-    		}
+    		    int mainpro;
+    		    printf("\nProcess %d is completed\n",queue[0].process_number);
+    		    for (j = 0; j < number_of_processes; ++j)
+    		    {
+    		    	if(queue[0].process_number==available[j].process_number)
+    		    		mainpro=j;
+    		    }
+    		    queue[0].completion_time=i;
+    		    queue[0].turn_around_time=i-queue[0].arrival_time;
+    		    queue[0].waiting_time=queue[0].turn_around_time - available[mainpro].cpu_burst;
+    		    completed[completed_processes]=queue[0];
+    		    queue[0].cpu_burst = available[mainpro].cpu_burst;
+    		    ++completed_processes;
+    		    printf("\nNo of processes completed : %d \n",completed_processes);
+    
+    		    //Removing current process from queue
+    	        for (j=0 ; j < queued_processes; ++j)
+    	        {
+    		        queue[j]=queue[j+1];
+    	        }
+    	        --queued_processes;
+    	        if(queued_processes==0)
+    	        {
+    	        	++idle_time;
+    	        }
+    	        
+    	        printf("\nProcesses in the queue : %d\n",queued_processes );
+    	        if ((i%time_quantum)==0 & i!=0)
+                {
+                    printf("\nTime quantum expired \n");
+                }
+                if (completed_processes==number_of_processes)
+                {
+                    break;
+                }
+        	}
+        	else
+        	{
+        		if ((i%time_quantum)==0 & i!=0)
+                {
+                    printf("\nTime quantum expired \n");
+                    j=0;
+                    struct process sample;
+                    sample=queue[j];
+                    for (j; j < queued_processes; ++j)
+                    {
+                        queue[j]=queue[j+1];
+                    }
+                    queue[j-1]=sample;
+                }
+        	}
     	}
-        
+    	else
+        {
+            if ((i%time_quantum)==0 & i!=0)
+                {
+                    printf("\nTime quantum expired \n");
+                }
+        }
 
     	//Executing current process for one second
-    	if(queue[0].cpu_burst!=0)
-        printf("\nDecreasing burst time of %d process by 1 \n",queue[0].process_number );
-    	queue[0].cpu_burst-=1;
-
-
+    	if(queued_processes != 0 &queue[0].cpu_burst!=0)
+    	{
+    		printf("\nDecreasing burst time of %d process by 1 \n",queue[0].process_number );
+    	    queue[0].cpu_burst-=1;
+    	}
+        if (queued_processes == 0)
+        {
+            idle_time += 1;
+        }
     }
 
-
-
     printf("\n\n\t\t\t\t The completed processes are \n");
+    printf("\nCpu will be idle for %d Seconds \n",idle_time );
     printf("\n| Process number| Arrival time  |  CPU burst time  |   Completion time  |  Turnaroundtime  |   Waiting time    | \n");
     printf("-------------------------------------------------------------------------------------------------------------------------------\n");
     for (i=0; i < number_of_processes; ++i)
