@@ -56,7 +56,6 @@ int main()
         if (available[i].arrival_time<0 | available[i].cpu_burst<0)
         	exit(1);
         
-
     	//Initializing other values in structure
     	available[i].turn_around_time=0;
    		available[i].completion_time=0;
@@ -64,7 +63,6 @@ int main()
 
     }
 
-    
     //Print the entered processes
     printf("\nThe time quantum allocated is %d\n",time_quantum );
     printf("\n\n\t\t\t\t The processes are \n");
@@ -101,7 +99,8 @@ int main()
     printf("\nTotal time of execution is : %d \n",total_time);
 
     //looping over total time
-    for ( i = 0; i <=total_time; ++i)
+    int t=0;
+    for ( i = 0 ,t=i; i <=total_time; ++i,++t)
     {
     	printf("\nAfter time %d second \n",i);
     	int j=0;
@@ -151,9 +150,13 @@ int main()
     	        }
     	        
     	        printf("\nProcesses in the queue : %d\n",queued_processes );
-    	        if ((i%time_quantum)==0 & i!=0)
+    	        if ((t%time_quantum)==0 & t!=0)
                 {
                     printf("\nTime quantum expired \n");
+                }
+                else
+                {
+                	t-=(t%time_quantum);
                 }
                 if (completed_processes==number_of_processes)
                 {
@@ -162,7 +165,7 @@ int main()
         	}
         	else
         	{
-        		if ((i%time_quantum)==0 & i!=0)
+        		if ((t%time_quantum)==0 & t!=0)
                 {
                     printf("\nTime quantum expired \n");
                     j=0;
@@ -178,7 +181,7 @@ int main()
     	}
     	else
         {
-            if ((i%time_quantum)==0 & i!=0)
+            if ((t%time_quantum)==0 & t!=0)
                 {
                     printf("\nTime quantum expired \n");
                 }
@@ -208,7 +211,7 @@ int main()
         int mainpro,j;
     		for (j = 0; j < number_of_processes; ++j)
     		{
-    			if(queue[0].process_number==available[j].process_number)
+    			if(completed[i].process_number==available[j].process_number)
     				mainpro=j;
     		}
 
@@ -225,6 +228,4 @@ int main()
 
     printf("\n The average turn around time of all processes is : %.3f \n",avg_turn_around_time );
     printf("\n The average waiting time of all processes is : %.3f \n", avg_waiting_time);
-
-
 }
